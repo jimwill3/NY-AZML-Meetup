@@ -1,0 +1,124 @@
+# MakeModel.cntk
+
+command=Train:WriteProbs:DumpWeights:Test
+
+modelPath = "Model\SimpleNet.snn"
+deviceId = -1
+dimension = 2 
+labelDimension = 3
+precision = "float"
+
+# =====
+Train = [
+  action="train"
+
+  # network description
+  BrainScriptNetworkBuilder = [
+
+    FDim = $dimension$
+    HDim = 5
+    LDim = $labelDimension$
+
+    # define the neural network
+    neuralDef (ftrs) = [
+      W0 = Parameter (HDim, FDim)
+      b0 = Parameter (HDim, 1)  
+      W1 = Parameter (LDim, HDim)
+      b1 = Parameter (LDim, 1)
+
+      hn = Tanh (W0 * ftrs + b0) 
+      zn = W1 * hn + b1
+    ].zn
+
+    # specify inputs
+    features = Input (FDim)
+    labels   = Input (LDim) 
+
+    # create network
+    myNet = neuralDef (features)
+
+    # define training criteria and output(s)
+    ce   = CrossEntropyWithSoftmax (labels, myNet)
+    err  = ErrorPrediction (labels, myNet)
+    pn   = Softmax (myNet)
+
+    # connect to the NDL system.
+    featureNodes    = (features)
+    inputNodes      = (labels)
+    criterionNodes  = (ce)
+    evaluationNodes = (err)
+    outputNodes     = (pn)
+  ]
+
+  # stochastic gradient descent
+  SGD = [
+    epochSize = 0
+    minibatchSize = 1
+    learningRatesPerSample = 0.04 
+    maxEpochs = 500
+    momentumPerMB = 0.90 
+  ]
+
+  # configuration for reading data
+  reader = [
+    readerType = "CNTKTextFormatReader"
+    file = "TrainData.txt"
+    input = [
+      features = [
+        dim = $dimension$
+        format = "dense"
+      ]
+      labels = [
+        dim = $labelDimension$
+        format = "dense"
+      ]
+    ]
+  ]
+]
+
+# test
+Test = [
+  action = "test"
+  reader = [
+    readerType = "CNTKTextFormatReader"
+    file="TestData.txt"
+    randomize = "false"
+    input = [
+      features = [
+        dim = $dimension$
+        format = "dense"
+      ]
+      labels = [
+        dim = $labelDimension$
+        format = "dense"
+      ]
+    ]
+  ]
+]
+
+# log the output node values
+WriteProbs = [ 
+  action="write"
+  reader=[
+    readerType="CNTKTextFormatReader"
+    file="TestData.txt"        
+    input = [
+      features = [
+        dim = $dimension$
+        format = "dense"
+      ]
+      labels = [
+        dim = $labelDimension$
+        format = "dense"
+      ]
+    ]
+  ]
+  outputPath = "TestProbs_txt"
+]
+
+# dump weight and bias values
+DumpWeights = [
+  action = "dumpNode"
+  printValues = "true"
+]
+

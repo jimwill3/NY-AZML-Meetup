@@ -1,0 +1,35 @@
+# MakePrediction.cntk
+stderr ="Log" #all messages to a file
+command=Predict:WriteProbs
+
+modelPath = "Model\SimpleNet.snn"
+deviceId = -1
+dimension = 2 
+labelDimension = 3
+precision = "float"
+
+Predict = [
+	action = "eval"
+	reader = [
+		readerType="CNTKTextFormatReader"
+		file="NewData.txt"
+		input = [
+			features = [ dim = $dimension$; format = "dense" ]
+			labels   = [ dim = $labelDimension$; format = "dense" ]
+		]
+	]
+]
+
+WriteProbs = [
+	action = "write"
+	reader = [
+		readerType = "CNTKTextFormatReader"
+		file="NewData.txt"
+		input = [
+			features = [ dim = $dimension$; format = "dense" ]
+			labels   = [ dim = $labelDimension$; format = "dense" ]
+		]
+	]
+	outputPath ="Prediction.txt" #dump with pn extension
+]
+	
