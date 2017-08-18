@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "C:/local/Anaconda3-4.1.1-Windows-x86_64/envs/cntk-py35/python",
+    "python.linting.pylintEnabled": false,
+    "python.autoComplete.extraPaths":["C:/Program Files/Anaconda3/Lib/site-packages/pydocumentdb"]
+}
