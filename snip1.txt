@@ -1,0 +1,29 @@
+import nltk
+import feedparser
+import ssl
+from collections import Counter
+import pandas as pd
+import numpy as np
+
+#from nltk.corpus import stopwords
+# fix wc3 logic which is treating a sentence as single word !! 2/1/18
+
+'''there is a limit in azure notebooks with NLTK in that it does not save the downloaded NLTK libs we need to cache locally
+this means we need to uncomment the very next statement and the sequence of commands will be
+d   - that tell the downloader you want to download something
+when it prompts again enter punkt - the tokenizer 
+then it will prompt again for another action
+enter d to run another download
+enter stopwords and then return
+finally, at the last step, enter q and hit return to exit. you can now run as long as your notebook session is alive to
+please add the comment, or enter a q if the prompt appears on a subsequent run'''
+#nltk.download() #uncomment is you need to download stopwords, punkt, treebank
+!python -m nltk.downloader punkt
+!python -m nltk.downloader stopwords
+!python -m nltk.downloader treebank
+
+from nltk.corpus import stopwords
+from nltk.tokenize import TreebankWordTokenizer 
+
+stopset = set(stopwords.words('english'))  #for now use english jw 1/3/18
+print('passed')

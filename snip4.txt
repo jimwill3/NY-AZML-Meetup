@@ -1,0 +1,39 @@
+!pip install -U scikit-learn
+print('passed scikit-learn load')
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+count_vect = CountVectorizer()
+counts = count_vect.fit_transform(docs)     #counts is a sparse matrix
+counts_rows,counts_cols = counts.get_shape()
+print('counts shape: rows,cols ',counts_rows,counts_cols)
+print('counts first entry[0][0] ',counts[0,0:counts_cols])                      #get all the flags for the first document for all words in vocabularly
+
+featnames = count_vect.get_feature_names()
+#print("type(featnames): #featnames: featnames",type(featnames),len(featnames),featnames)
+tf_transformer = TfidfTransformer(use_idf=False).fit(counts)
+
+
+print('-------------------vocabularly dump--------------------')
+thewordtoloc = 'dynamics'
+wordloc = count_vect.vocabulary_[thewordtoloc]
+print(thewordtoloc, ' at ' ,wordloc)
+#let's find all the docs with windows
+print('docs with ',thewordtoloc, '\n' ,counts[:,wordloc])
+print('vocabulary is ',count_vect.vocabulary_)                             #should be dump of words extracted
+#get the values (word entry) of the allcounters dictionary into a sorted list
+#vocablist  = allcounters.values()
+vocabvalsdict = count_vect.vocabulary_.values()            #vocabulary_ is a dictionary of word to slot/count mapping
+#print('WTF--',type(vocabvalsdict))                                 #dict_values
+vocabarray = np.array(list(count_vect.vocabulary_.values()))
+print('WTF ',(vocabarray.shape))
+print(vocabarray[wordloc])
+print('------------------------------------------------------')
+countsarray = counts.toarray()                            #this is the feature vector 
+print('countsarray len ',len(countsarray))                #shouyld be number of documents
+for arr in countsarray:
+    print('feature vector ',(arr))                        #feature vector for each document
+
+idf = count_vect.inverse_transform(counts)
+print('idf info')
+for idfinfo in idf:
+    print(idfinfo)

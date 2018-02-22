@@ -1,0 +1,20 @@
+#that was just testing the calls and poking around - now let's go deeper and use the tfidf transformer from prior cell
+#tf_transformer = TfidfTransformer(use_idf=False).fit(counts) already sets us up
+#set precision for printing to 4 decimals
+#import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
+tfidf = TfidfTransformer()
+tfarray=tfidf.fit_transform(count_vect.fit_transform(docs)).toarray()
+#or
+sklearn_tfidf = TfidfVectorizer(norm='l2',min_df=0, use_idf=True, smooth_idf=False, sublinear_tf=True)
+sklearn_representation = sklearn_tfidf.fit_transform(docs)
+print('first doc idf \n ', sklearn_representation.toarray()[0].tolist()) 
+print('---------------now let''s look at one word across the 10 docs------')
+
+#print(tfarray.shape)
+#print(type(tfarray))
+np.set_printoptions(precision=6,suppress=True)
+#print(type(tfarray[0,0]))
+print(tfarray[0:,wordloc].tolist())                                   #show the nth word in wordtoloc

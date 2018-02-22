@@ -1,0 +1,62 @@
+#iterate over a blogs rss feed and for each blog do a bag of words calc and maintain a running bag of words over the entire
+#set of feed descriptions - 1 description per blog entry
+#as an alternate do this in basic way with python counters and dictionaries but also with panda dataframes
+
+
+docs  = [] #docs will hold a list of documents per sweep over a rss feed
+docn  = 0 #this counts documents which is one to one with n.description entries found
+sentn = 0 #this counts sentences within a document so you can think of a document as a list of sentences
+#the following routibes separate the description values accodingly but at the end we'll have 'd' documents with each document 
+#having 's'sentences and 'k' keywords
+azfeeds = ['https://azure.microsoft.com/en-us/blog/feed','https://blogs.msdn.microsoft.com/feed/','http://feeds.reuters.com/reuters/UKTopNews']
+
+
+azfeed = feedparser.parse(azfeeds[1])
+
+sourceblog = (azfeed.feed.title)
+#lets get all the tokens from each blog entry while we iterate
+alltokens= []  #a list with each entry being a list of tokens i.e. alltokens[0] = tokenized fist blog entry
+allcounters=Counter()
+
+for azitems in azfeed.entries:
+    tokenizer = TreebankWordTokenizer() #slightly different view 
+    tokens = nltk.word_tokenize(azitems.description)
+    #tokens2= tokenizer.tokenize(text=azitems.description)
+    print('tokens:',tokens)
+    #print('tokens2:',tokens2)
+    print('-----------------')
+    alltokens.append(tokens)
+    docs.append(azitems.description)
+    docn = docn+1
+    print(azitems.description)
+    print('------------------------------------')
+    cleanup = [token.lower() for token in tokens if len(token)>2]
+    wc2=Counter(''.join(str(e)) for e in cleanup)
+    
+    #for word,count in wc2.most_common(5):
+    #    print ('wc2 word:count',word,count)
+    
+    print('-------------------------------start an item---------------------------------------------------')
+    cleanup2 = [token.lower() for token in tokens if token not in stopset and len(token) > 2 ]
+    wc2=Counter(''.join(str(ee)) for ee in cleanup2)
+    
+    for word,count in wc2.most_common(8):
+        print('internal word:count ',word,count)
+    allcounters.update(wc2)                             #basically this appends to our top level counter 
+    for word,count in allcounters.most_common(8):
+        print ('allcounters word:count',word,count)
+    print('---------------------------------end an item-------------------------------------------------')
+    print('docscount= ',docn)
+    #print('Counter for docs is ', Counter(docs)) #need to tokenize docs collection !! jw 2/13/18
+    #print('current intersection current doc and running docs ', (wc2 & Counter(docs)))
+
+print('allcounters:common \n') #,allcounters)
+for word,count in allcounters.most_common(8):
+        print ('allcounters word:count',word,count)
+for tok in alltokens:
+    print('tokens entry \n ',tok)
+print('--------------------------end basic python approach-----start panda tfidf approach--------------')
+
+#get the values (word entry) of the allcounters dictionary into a sorted list
+#vocablist  = allcounters.values()
+#print(vocablist)

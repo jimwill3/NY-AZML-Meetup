@@ -1,0 +1,12 @@
+#!python -m nltk.download_shell
+#!pip install -U nltk
+
+
+#!python -m nltk.downloader punkt
+#!python -m nltk.downloader stopwords
+
+
+if hasattr(ssl,'_create_unverified_context'):
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+
