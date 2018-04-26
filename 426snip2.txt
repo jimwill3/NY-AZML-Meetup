@@ -1,0 +1,73 @@
+#test zone to cleanup and remove punctuation from the original documents - leaves us wiht a list of strings with each
+#string containing the origninal text stripped of stopwords, punctuation, and small words ( 2 char or less)
+keepset = ('AI','ai','PI','pi','Pi') #small words worth keeping
+
+#print(token in stopset)
+#print(len(token)>2 or token.lower() in keepset)
+atdoc=0 #track our doc location in the docs list
+tstdocs = []
+for doc in docs:
+    #tokens  = nltk.word_tokenize(doc)      #original working version
+    tokens  = nltk.wordpunct_tokenize(doc) #3/15 just to see how it works
+    cleanup = [token.lower() for token in tokens if token not in stopset and ( len(token)>2 or token in keepset) ]
+    #rawtext = nltk.Text(cleanup)
+    #print(type(docs[0]))
+    #print(type(rawtext))
+    #print(cleanup)
+    cleanup = ' '.join(cleanup)
+    docs[atdoc] = cleanup #see if this works 3/15
+    atdoc = atdoc+1
+    tstdocs.append(cleanup) 
+
+    
+docn = len(docs)
+print('\n number of docs is ',docn)
+print(docs[0],'\n',docs[docn-1])
+#print(tstdocs)
+
+
+
+
+count_vect = CountVectorizer()
+counts = count_vect.fit_transform(docs)     #counts is a sparse matrix
+dfcv   = pd.DataFrame(counts.toarray(),columns=count_vect.get_feature_names() )    #new 3/15
+counts_rows,counts_cols = counts.get_shape()
+print('counts shape: rows,cols ',counts_rows,counts_cols)
+#print('counts first entry[0][0] ',counts[0,0:counts_cols])                      #get all the flags for the first document for all words in vocabularly
+
+featnames = count_vect.get_feature_names()
+print('feature locs for azure and books are :\n',featnames.index('azure'),'\t',featnames.index('books'))
+print('feature names:\n',featnames[20],'\t',featnames[26])
+print(dfcv.loc[0:1])
+
+
+
+
+
+
+tfidf = TfidfTransformer()
+tfarray=tfidf.fit_transform(count_vect.fit_transform(docs)).toarray()
+#original min_df=1 - let's try 2 and notice the changes downstream
+sklearn_tfidf = TfidfVectorizer(norm='l2',min_df=1, use_idf=True, smooth_idf=False, stop_words=stopwords.words('english'), \
+                                sublinear_tf=True,ngram_range=(1,1))
+sklearn_representation = sklearn_tfidf.fit_transform(docs)
+skarray = sklearn_representation.toarray()
+
+#print('first doc features skarray \n ', sklearn_representation.toarray()[0].tolist()) 
+#print('first doc features tfarray\n', tfarray[0].tolist())
+
+feats = sklearn_tfidf.get_feature_names() # same as CountVectorizer
+print(feats[20],'\t',feats[26])
+#print(tfarray.shape)
+#print(type(tfarray))
+#np.set_printoptions(precision=6,suppress=True)
+#print(type(tfarray[0,0]))
+wordloc = 20 #oauth is loacted at that index location
+wordloc2= 26 #server is located here
+#these will work when df_min is 1 and ngram_range is 1,1 or 1,2 etc. currently set at (2,2) 3/14 Noon
+print('\n---------------now let''s look at one word across the ',docn, ' docs---the word is azure---')
+#print(tfarray[0:,wordloc].tolist())                                   #show the nth word in wordtoloc
+print(skarray[0:,wordloc].tolist())
+print('\n---------------now let''s look another word across the ',docn,' docs---the word is books--')
+#print(tfarray[0:,wordloc2].tolist()) 
+print(skarray[0:,wordloc2].tolist())

@@ -1,0 +1,37 @@
+#note the use of weight threshold and limiting the number of terms to include to make the outputs a bit simpler
+def print_topics_gensim(topic_model, total_topics=1, weight_threshold=0.0001,   display_weights=True,   num_terms=None):
+    for index in range(total_topics):        
+        topic = topic_model.show_topic(index)        
+        topic = [(word, round(wt,2))                 
+                 for word, wt in topic                 
+                 if abs(wt) >= weight_threshold]        
+        if display_weights:            
+            print ('Topic #'+str(index+1)+' with weights')            
+            print (topic[:num_terms] if num_terms else topic)        
+        else:            
+            print ('Topic #'+str(index+1)+' without weights')            
+            tw = [term for term, wt in topic]            
+            print (tw[:num_terms] if num_terms else tw)        
+        print('')
+
+
+
+
+
+print_topics_gensim(lsi,total_topics,weight_threshold=0.001,num_terms=7)
+
+
+
+
+
+#now - try out latent dirichlet allocation model
+#to use this we need our TFIDF calculated above, number of topics to model
+#first - create an LDA model and then invoke/fit that model using the TFIDF - using gensim module
+#set up work to get things structured for input
+#need a normalized corpus - we have that - corpus
+#need a dictionary of the corpus - have that - dictionary 
+#need a TFIDF of the corpus - have that - corpus_tfidf
+lda_gensim = models.LdaModel(corpus_tfidf,id2word=dictionary,iterations=100,num_topics=4)
+print(lda_gensim)
+
+print_topics_gensim(lda_gensim,total_topics,weight_threshold=0.001,num_terms=7)

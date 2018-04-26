@@ -1,0 +1,59 @@
+import nltk
+import feedparser
+import ssl
+from collections import Counter
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+
+#!pip install -U scikit-learn  should not be needed  but just in case uncomment
+#from nltk.corpus import stopwords
+
+
+'''there is a limit in azure notebooks with NLTK in that it does not save the downloaded NLTK libs we need to cache locally
+this means we need to uncomment the very next statement and the sequence of commands will be
+d   - that tell the downloader you want to download something
+when it prompts again enter punkt - the tokenizer 
+then it will prompt again for another action
+enter d to run another download
+enter stopwords and then return
+finally, at the last step, enter q and hit return to exit. you can now run as long as your notebook session is alive to
+please add the comment, or enter a q if the prompt appears on a subsequent run'''
+#nltk.download() #uncomment is you need to download stopwords, punkt, treebank
+!python -m nltk.downloader punkt
+!python -m nltk.downloader stopwords
+!python -m nltk.downloader treebank
+
+from nltk.corpus import stopwords
+from nltk.tokenize import TreebankWordTokenizer 
+
+stopset = set(stopwords.words('english'))  #for now use english jw 1/3/18
+stopset.add('...') 
+print('passed')
+
+
+docs  = [] #docs will hold a list of documents per sweep over a rss feed
+docn  = 0 #this counts documents which is one to one with n.description entries found
+sentn = 0 #this counts sentences within a document so you can think of a document as a list of sentences
+
+#will statically load the docs list with items from a previous run
+docs = ['recently, one customer said his asp.net core application used to work very well in oauth authentication all the time, but after he placed a reverse proxy in front of the web application, the authentication fails because of invalid callback path. normally speaking, a callback path is needed when registering an application to the oauth server....', 
+        'in this post, premier developer consultant joe healy identifies a possible error you may get when working with an android project on xamarin forms. read about his discovery and eventual solution to fix the ssl/tls implementation issue. recently, i was helping a client with an azure active directory integrated project (adal not msal for some...', 
+        'sql server management object smo) is one of the widely used way to interact with sql server due to its feature for directly able to execute mass operation as well as management operation on sql server, instead of old school way of using queries. however when using it , it should also need to be...', 
+        "“if you have nothing to say, say nothing.” -- mark twain twain was so smart. i've returned to post after a long, self-imposed break from blogging, as so many great folks inside\xa0 the company work as part of their day jobs several of the areas of interest i've covered on my blog. over the last...", 
+        'in this post, app dev manager john abele explores micro-frontend design with asp.net core and mvc. many development teams have spent the last few years organizing and empowering cross-functional teams, building independently managed microservices, and implementing devops pipelines to go faster than ever! these industry shifts, critical for organizations to plan less and react more,...', 
+        'php_ini_system level settings cannot be changed from .user.ini or ini_set function. to make change for php_ini_system settings on azure web app, follow the steps, 1. add an app setting to your web app with the key php_ini_scan_dir and value d:homesiteini 2. create an settings.ini file using kudu console (http://&#60;site-name&#62;.scm.azurewebsite.net) in the d:homesiteini directory. 3. add...', 
+        "i don't spend a lot of time talking to customers about physical data center security. as a developer using mostly paas or iaas compute platforms, i just assumed that that cloud provider had taken care of it. helping customers with data security (data at rest, data in transit, secure compute), and application code security takes...", 
+        'here are top stories we found in our streams this week related to devops, vsts, tfs and other interesting topics. top stories change image size in vsts wiki - jeff bramwellif you’ve been making use of the wiki feature within vsts then you already know how useful it is for providing documentation, notes, etc. in...', 
+        'when managing a self-service knowledge base, understanding how customers and employees are searching for and consuming self-service knowledge is an important part of ensuring your content remains relevant and useful for end users. dynamics includes a number of in-built capabilities to help analyze the usage of the knowledge base, including: tracking of article views by...', 
+        'Azure Automation For Azure IAAS enthusiasts, Microsoft has provided a platform to automate all the azure services using powershell. The language is tweaked and used as “powershell workflow”. Why to Use Reducing Manual Effort and help in consistent testing Managing resources (deployment/VM’s etc) How to Use Create a powershell workflow in azure web portal and',
+        'new titles are coming soon to the microsoft press store! buy now to save 40% on pre-order books or ebooks: https://www.microsoftpressstore.com/store/browse/coming-soon. note: new titles become available for pre-order 90 days prior to availability. some books in the image above will become available during the duration of the sale.',
+       'Ransomware attacks are no longer restricted to only deletion of data but are starting to look at attacking backups as well. Taking a backup is only the first step in your protection, it becomes important to safe guard those backups too. This week as we celebrate World Backup Day, let’s look at the key considerations that customers should look for in backup products as they build the defenses to secure their backups from evolving ransomware attacks.',
+       'it service management (itsm) tools help large it organizations route and handle service issues and requests. itop is an open source itsm tool written in php. it uses mysql as the backend database. in this blog, i will walk through the steps of installing itop in an azure web app and configure azure active directory']
+
+
+
+
+

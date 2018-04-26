@@ -1,0 +1,50 @@
+#how let's look for something else - what docs have words in common
+#a simple translation is to compare the two arrays of 337 entries for hits where a hit is simply that both are non-zero
+#for example the intersection array of tfarray[0,:] and tfarray[1,:] where both values are > 0.0
+#pandas dataframes
+df = pd.DataFrame(sklearn_representation.toarray(),columns=feats)
+#print(df['twain'],'\n',df['developer'])
+
+
+
+
+
+print(sklearn_representation.todense().round(4))
+
+
+
+
+
+print(df.loc[0:1])
+
+
+
+
+#print(df['server'] > 0.1)
+#print(df.loc[0:1].corr())
+#print(df.loc[0:1].cov())
+#print((df.corrwith(df.loc[1])))
+#print(df.loc[0].value_counts())
+df.describe()
+
+
+#let's use the above to make a simple latent semantic index model (LSI)
+!pip install -q gensim 
+from gensim import corpora, models
+#docs has our collection of documents and lets make that a dictionary - input needs to be array of tokens
+#mydictokens = [doc for doc in nltk.word_tokenize(docs)]
+mydictokens = [nltk.word_tokenize(doc) for doc in docs]
+#print((mydictokens))
+dictionary  = corpora.Dictionary(mydictokens)
+#print(dictionary.token2id)
+corpus = [dictionary.doc2bow(text) for text in mydictokens]
+#print(corpus)
+tfidf = models.TfidfModel(corpus) 
+corpus_tfidf = tfidf[corpus]
+# fix the number of topics total_topics =n  using 3 for demos and stuff but changing it around is very illustrative
+total_topics = 4 #default is 3
+
+lsi = models.LsiModel(corpus_tfidf, id2word=dictionary,  num_topics=total_topics)
+for index, topic in lsi.print_topics(total_topics):
+    print ('Topic #'+str(index+1))
+    print (topic) 
